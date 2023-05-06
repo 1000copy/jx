@@ -68,6 +68,7 @@ var knex = require('knex')({
 		var buy1 = await knex("buy").where("#id",3)
 		console.log("abc",buy1,await knex("buy").where("#id",4))
 		// maybe better-sqlite3?
+		// node -e 'console.log(require("sqlite3").VERSION)'
 	}catch(e){
 		console.log(e)
 	}finally{
