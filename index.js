@@ -65,6 +65,9 @@ var knex = require('knex')({
 		await knex('buy').insert(buy)
 		await knex('items').del()
 		await knex('items').insert(buys)
+		var buy1 = await knex("buy").where("#id",3)
+		console.log("abc",buy1,await knex("buy").where("#id",4))
+		// maybe better-sqlite3?
 	}catch(e){
 		console.log(e)
 	}finally{

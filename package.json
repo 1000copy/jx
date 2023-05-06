@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "knex": "^0.19.4",
-    "sqlite3": "^4.1.0"
+    "knex": "^0.19.5",
+    "sqlite3": "^4.2.0"
   }
 }
