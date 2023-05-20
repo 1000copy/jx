@@ -58,6 +58,7 @@ async function make() {
 			  //.whereRaw(`?? = ?? and '#id' = ${id}`, ['a.#id', 'b.#ref'])
 			  // .whereRaw(`?? = ?? and a.'#id' = ${id}`, ['a.#id', 'b.#ref'])
 			  .whereRaw(`?? = ?? and ?? = ??`, ['a.#id', 'b.#ref','a.#id',id])
+			  // console.log("$",items)	  
 			 for(const item of items){
 			 		// console.log(item)	  
 			 		// https://stackoverflow.com/questions/42212497/knex-js-how-to-update-a-field-with-an-expression
@@ -70,9 +71,10 @@ async function make() {
 
 		const assert = require('assert')
 		// single bill detail
+		// 过账并检查结果1
 		await post(1)
-		// var s = await knex("stock").where("#id",1)
-		// assert(s[0].qty==99)
+		var s = await knex("stock").where("#id",1)
+		assert(s[0].qty==99)
 		const sale = [
 		    { '#id':1,'#depot':1},
 		]
@@ -85,14 +87,17 @@ async function make() {
 		await knex('sale').insert(sale)
 		await knex('items').del()
 		await knex('items').insert(sales)
-		post(1)
+		// 过账并检查结果2
+		var s = await knex("stock").where("#id",1)
+		// console.log(s)
+		await post(1)
 		var s = await knex("stock").where("#id",1)
 		// console.log(s)
 		assert(s[0].qty==98)
 		var f = await knex("stock").where("#id",2)
 		// console.log(f)
 		assert(f[0].qty==89)
-		// DEBUG=knex:query 环境变量可以调试SQL
+		// DEBUG=knex:query node t1 环境变量可以调试SQL
 	}catch(e){
 		console.log(e)
 	}finally{
