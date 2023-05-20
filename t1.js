@@ -110,3 +110,11 @@ async function make() {
 	}
 })()
 
+/*
+git config --global alias.a '!f() { git commit -am "$1" && git push; }; f'
+
+# then use it with
+git a "My message is awesome."
+
+*/
+
