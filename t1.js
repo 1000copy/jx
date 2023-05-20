@@ -33,17 +33,6 @@ async function make() {
 		]
 		await knex('stock').del()
 		await knex('stock').insert(stock)
-		const sale = [
-		    { '#id':1,'#depot':1},
-		]
-		const sales = [
-		    { '#id':1,'#ref':1,'#cargo':1,qty:1,price:9000,sum:9000},
-		    //{ '#id':2,'#ref':1,'#cargo':2,qty:1,price:9000,sum:9000},
-		]
-		await knex('sale').del()
-		await knex('sale').insert(sale)
-		await knex('items').del()
-		await knex('items').insert(sales)
 }
 (async()=>{	
 	try{
@@ -68,35 +57,51 @@ async function make() {
 			 }
 			 
 		}
-
 		const assert = require('assert')
-		// single bill detail
-		// 过账并检查结果1
-		await post(1)
-		var s = await knex("stock").where("#id",1)
-		assert(s[0].qty==99)
-		const sale = [
-		    { '#id':1,'#depot':1},
-		]
-	  // double bill detail
-		const sales = [
-		    { '#id':1,'#ref':1,'#cargo':1,qty:1,price:9000,sum:9000},
-		    { '#id':2,'#ref':1,'#cargo':2,qty:11,price:9000,sum:9000},
-		]
-		await knex('sale').del()
-		await knex('sale').insert(sale)
-		await knex('items').del()
-		await knex('items').insert(sales)
-		// 过账并检查结果2
-		var s = await knex("stock").where("#id",1)
-		// console.log(s)
-		await post(1)
-		var s = await knex("stock").where("#id",1)
-		// console.log(s)
-		assert(s[0].qty==98)
-		var f = await knex("stock").where("#id",2)
-		// console.log(f)
-		assert(f[0].qty==89)
+		function test1(){
+			const sale = [
+			    { '#id':1,'#depot':1},
+			]
+			const sales = [
+			    { '#id':1,'#ref':1,'#cargo':1,qty:1,price:9000,sum:9000},
+			    //{ '#id':2,'#ref':1,'#cargo':2,qty:1,price:9000,sum:9000},
+			]
+			await knex('sale').del()
+			await knex('sale').insert(sale)
+			await knex('items').del()
+			await knex('items').insert(sales)
+			// single bill detail
+			// 过账并检查结果1
+			await post(1)
+			var s = await knex("stock").where("#id",1)
+			assert(s[0].qty==99)	
+		}
+		function test2(){
+			const sale = [
+			    { '#id':1,'#depot':1},
+			]
+		  // double bill detail
+			const sales = [
+			    { '#id':1,'#ref':1,'#cargo':1,qty:1,price:9000,sum:9000},
+			    { '#id':2,'#ref':1,'#cargo':2,qty:11,price:9000,sum:9000},
+			]
+			await knex('sale').del()
+			await knex('sale').insert(sale)
+			await knex('items').del()
+			await knex('items').insert(sales)
+			// 过账并检查结果2
+			var s = await knex("stock").where("#id",1)
+			// console.log(s)
+			await post(1)
+			var s = await knex("stock").where("#id",1)
+			// console.log(s)
+			assert(s[0].qty==98)
+			var f = await knex("stock").where("#id",2)
+			// console.log(f)
+			assert(f[0].qty==89)
+		}
+		test1()
+		test2()
 		// DEBUG=knex:query node t1 环境变量可以调试SQL
 	}catch(e){
 		console.log(e)
@@ -104,7 +109,4 @@ async function make() {
 		knex.destroy()
 	}
 })()
-
-
-
 
