@@ -109,13 +109,14 @@ async function make() {
 		knex.destroy()
 	}
 })()
-
+// todo - 去掉仓库depot，按MVP的来
 /*
 git config --global alias.a '!f() { git commit -am "$1" && git push; }; f'
 
 # then use it with
 git a "My message is awesome."
- 
+git a  nospacemessage
+
 
 */
 
