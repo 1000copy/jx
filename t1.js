@@ -114,8 +114,11 @@ async function make() {
 		// await test2()
 		// await test3()
 		// DEBUG=knex:query node t1 环境变量可以调试SQL
-		await t4()
+		// await t4()
 		await t5()
+		var items = await knex('stock').select({qty: 'qty'}).whereRaw(`?? = ??`, ['#id',1])
+					let nqty = items[0]['qty']
+					console.log(nqty)
 		// update can return column for sqlite?
 		// .returning() is not supported by sqlite3 and will not have any effect.
 		async function t4(){
@@ -133,6 +136,26 @@ async function make() {
 			// console.log(items)
 			let nqty = items[0]['qty']
 			assert(nqty==-1)
+		}
+		async function t5(){
+			knex.transaction(async function(knex) {
+				let cargo = 1;let qty = 101
+				await knex('stock').
+					//returning("qty").
+					update({qty: knex.raw('?? - ??', ['qty',qty])}).where('#cargo',cargo)
+				var items = await knex('stock').select({qty: 'qty'}).whereRaw(`?? = ??`, ['#id',1])
+				console.log(items)
+				let nqty = items[0]['qty']
+				// assert(nqty==-1)
+				if (nqty == -1 ){
+					await knex.rollback('neglect stock')
+				}	else {
+					await knex.commit()
+				}
+			}).catch(function(error) {
+			  console.error(error);
+			})
+			
 		}
 	}catch(e){
 		console.log(e)
