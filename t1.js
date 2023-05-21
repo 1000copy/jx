@@ -21,6 +21,7 @@ async function make() {
 		const stock = [
 		    { '#id':1,'#cargo':1,qty: 100,price:9000},
 		    { '#id':2,'#cargo':2,qty: 100,price:9000},
+		    { '#id':3,'#cargo':3,qty: 100,price:9000},
 		]
 		await knex('stock').del()
 		await knex('stock').insert(stock)
@@ -49,7 +50,7 @@ async function make() {
 			 
 		}
 		const assert = require('assert')
-		function test1(){
+		async function test1(){
 			const sale = [
 			    { '#id':1,'#depot':1},
 			]
@@ -67,7 +68,7 @@ async function make() {
 			var s = await knex("stock").where("#id",1)
 			assert(s[0].qty==99)	
 		}
-		function test2(){
+		async function test2(){
 			const sale = [
 			    { '#id':1,'#depot':1},
 			]
@@ -91,9 +92,48 @@ async function make() {
 			// console.log(f)
 			assert(f[0].qty==89)
 		}
-		test1()
-		test2()
+		async function test3(){
+			const sale = [
+			    { '#id':1},
+			]
+			const sales = [
+			    { '#id':1,'#ref':1,'#cargo':3,qty:101,price:9000,sum:9000},
+			]
+			await knex('sale').del()
+			await knex('sale').insert(sale)
+			await knex('items').del()
+			await knex('items').insert(sales)
+			// single bill detail
+			// 过账并检查结果1
+			await post(1)
+			var s = await knex("stock").where("#id",3)
+			console.log(s)
+			assert(s[0].qty==-1)	
+		}
+		// await test1()
+		// await test2()
+		// await test3()
 		// DEBUG=knex:query node t1 环境变量可以调试SQL
+		await t4()
+		await t5()
+		// update can return column for sqlite?
+		// .returning() is not supported by sqlite3 and will not have any effect.
+		async function t4(){
+			let cargo = 1;let qty = 101
+			await knex('stock').
+				//returning("qty").
+				update({qty: knex.raw('?? - ??', ['qty',qty])}).where('#cargo',cargo)
+			var items = await knex('stock')
+			  .select({
+			  	id:'#id',
+			    cargo: '#cargo',
+			    qty: 'qty'
+			  })
+			  .whereRaw(`?? = ??`, ['#id',1])
+			// console.log(items)
+			let nqty = items[0]['qty']
+			assert(nqty==-1)
+		}
 	}catch(e){
 		console.log(e)
 	}finally{
