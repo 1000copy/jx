@@ -18,18 +18,9 @@ async function make() {
 		]
 		await knex('cargo').del()
 		await knex('cargo').insert(cargo)
-		// console.log(await knex.from('cargo').select("*"))	
-		const depot = [
-		    { '#id':1,name: 'San Francisco'},
-		    { '#id':2,name: 'Los Angles'},
-		    { '#id':3,name: 'New York'},
-		    { '#id':4,name: 'Houston'},
-		]
-		await knex('depot').del()
-		await knex('depot').insert(depot)
 		const stock = [
-		    { '#id':1,'#depot':1,'#cargo':1,qty: 100,price:9000},
-		    { '#id':2,'#depot':1,'#cargo':2,qty: 100,price:9000},
+		    { '#id':1,'#cargo':1,qty: 100,price:9000},
+		    { '#id':2,'#cargo':2,qty: 100,price:9000},
 		]
 		await knex('stock').del()
 		await knex('stock').insert(stock)
@@ -109,14 +100,26 @@ async function make() {
 		knex.destroy()
 	}
 })()
-// todo - 去掉仓库depot，按MVP的来
+
 /*
+
+## todo - 去掉仓库depot，按MVP的来
+
+## 在过账时，如果遇到负库存，应该自动回滚事务
+
+## make alias for add . && commit -m"message" && git push to git a message
+
 git config --global alias.a '!f() { git commit -am "$1" && git push; }; f'
 
 # then use it with
 git a "My message is awesome."
 git a  nospacemessage
 git a  w无空格中文
+
+## How to page down in sublime text in Mac OS X?
+
+Just using Fn+up to pageup and Fn+down to pagedown
+
 
 
 */

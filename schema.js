@@ -14,17 +14,10 @@ var knex = require('knex')({
 	    t.string('name')
 	    t.decimal('price')
 	})
-	var tablename = 'depot'
-	await knex.schema.dropTableIfExists(tablename)
-	await knex.schema.createTable(tablename, (t) => {
-	    t.increments('#id')
-	    t.string('name')	    
-	})	
 	var tablename = 'stock'
 	await knex.schema.dropTableIfExists(tablename)
 	await knex.schema.createTable(tablename, (t) => {
 	    t.increments('#id')
-	    t.integer('#depot')
 	    t.integer('#cargo')
 	    t.decimal('qty')
 	    t.decimal('price')	    
@@ -33,17 +26,25 @@ var knex = require('knex')({
 	await knex.schema.dropTableIfExists(tablename)
 	await knex.schema.createTable(tablename, (t) => {
 	    t.increments('#id')
-	    t.string('#depot')
 	    t.integer('memo')
 	})
 	var tablename = 'buy'
 	await knex.schema.dropTableIfExists(tablename)
 	await knex.schema.createTable(tablename, (t) => {
 	    t.increments('#id')
-	    t.string('#depot')
 	    t.integer('memo')
 	})
-	var tablename = 'items'
+	var tablename = 'sales'
+	await knex.schema.dropTableIfExists(tablename)
+	await knex.schema.createTable(tablename, (t) => {
+	    t.increments('#id')
+	    t.integer('#ref')
+	    t.integer('#cargo')
+	    t.decimal('qty')
+	    t.decimal('price')
+	    t.decimal('sum')
+	})	
+	var tablename = 'buys'
 	await knex.schema.dropTableIfExists(tablename)
 	await knex.schema.createTable(tablename, (t) => {
 	    t.increments('#id')
