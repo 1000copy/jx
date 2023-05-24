@@ -4,15 +4,12 @@ var knex = require('knex')({client: 'sqlite3',
 (async()=>{	
 	try{
 		await make()
-		async function post(id){
-			let sale = new Sale(id)
-			await sale.post()
-		}
-		// await test1()
-		// await test2()
-		// await test3()
-		// await t4()
+		await test1()
+		await test2()
+		await test3()
+		await t4()
 		await t5()
+		await test6()
 	}catch(e){
 		console.log(e)
 	}finally{
@@ -41,7 +38,7 @@ async function make() {
 		await knex('stock').del()
 		await knex('stock').insert(stock)
 }
-class sale{
+class Sale{
 	constructor(id){
 		this.id = id
 	}
@@ -56,19 +53,36 @@ class sale{
 				  //.whereRaw(`?? = ?? and '#id' = ${id}`, ['a.#id', 'b.#ref'])
 				  // .whereRaw(`?? = ?? and a.'#id' = ${id}`, ['a.#id', 'b.#ref'])
 				  .whereRaw(`?? = ?? and ?? = ??`, ['a.#id', 'b.#ref','a.#id',id])
-			 for(const item of sales){
-			 		// console.log(item)	  
-			 		// https://stackoverflow.com/questions/42212497/knex-js-how-to-update-a-field-with-an-expression
-			 		// await knex("stock").decrement("qty",item.qty).where("#cargo",item.cargo)
-			 	  // console.log("#……",item.cargo)	 
-			 		await knex('stock').update({qty: knex.raw('?? - ??', ['qty',item.qty])}).where('#cargo',item.cargo)
-			 }
+			knex.transaction(async function(knex) {
+				 for(const item of sales){
+				 		// console.log(item)	  
+				 		// https://stackoverflow.com/questions/42212497/knex-js-how-to-update-a-field-with-an-expression
+				 		// await knex("stock").decrement("qty",item.qty).where("#cargo",item.cargo)
+				 	  // console.log("#……",item.cargo)	 
+				 		await knex('stock').update({qty: knex.raw('?? - ??', ['qty',item.qty])}).where('#cargo',item.cargo)
+				 		var stockn = await knex('stock').select({qty: 'qty'}).whereRaw(`?? = ??`, ['#cargo',item.cargo])
+						// console.log(stockn)
+						let nqty = stockn[0]['qty']
+						// assert(nqty==-1)
+						if (nqty < 0  ){
+							await knex.rollback('neglect stock')
+						}	
+				 }
+				 await knex.commit()
+			}).catch(function(error) {
+			  console.error(error);
+			})
 	}
 }
+async function post(id){
+			let sale = new Sale(id)
+			await sale.post()
+		}
+
 const assert = require('assert')
 		async function test1(){
 			const sale = [
-			    { '#id':1,'#depot':1},
+			    { '#id':1,},
 			]
 			const sales = [
 			    { '#id':1,'#ref':1,'#cargo':1,qty:1,price:9000,sum:9000},
@@ -82,11 +96,12 @@ const assert = require('assert')
 			// 过账并检查结果1
 			await post(1)
 			var s = await knex("stock").where("#id",1)
+			console.log(s)
 			assert(s[0].qty==99)	
 }
 async function test2(){
 	const sale = [
-	    { '#id':1,'#depot':1},
+	    { '#id':1},
 	]
   // double bill detail
 	const sales = [
@@ -122,12 +137,12 @@ async function test3(){
 	// single bill detail
 	// 过账并检查结果1
 	await post(1)
-	var s = await knex("stock").where("#id",3)
+	var s = await knex("stock").where("#cargo",3)
 	// console.log(s)
-	assert(s[0].qty==-1)	
+	assert(s[0].qty==100)	
 }
 async function t4(){
-	let cargo = 1;let qty = 101
+	let cargo = 3;let qty = 101
 	await knex('stock').
 		//returning("qty").
 		update({qty: knex.raw('?? - ??', ['qty',qty])}).where('#cargo',cargo)
@@ -137,7 +152,7 @@ async function t4(){
 	    cargo: '#cargo',
 	    qty: 'qty'
 	  })
-	  .whereRaw(`?? = ??`, ['#id',1])
+	  .whereRaw(`?? = ??`, ['#cargo',cargo])
 	// console.log(sales)
 	let nqty = sales[0]['qty']
 	assert(nqty==-1)
@@ -164,6 +179,29 @@ async function t5(){
 	  console.error(error);
 	})
 	
+}
+async function test6(){
+	await make()
+	const sale = [
+	    { '#id':1},
+	]
+  // double bill detail
+	const sales = [
+	    { '#id':1,'#ref':1,'#cargo':1,qty:99,price:9000,sum:9000},
+	    { '#id':2,'#ref':1,'#cargo':2,qty:101,price:9000,sum:9000},
+	]
+	await knex('sale').del()
+	await knex('sale').insert(sale)
+	await knex('sales').del()
+	await knex('sales').insert(sales)
+	// 过账并检查结果2
+	await post(1)
+	var s = await knex("stock").where("#cargo",1)
+	console.log(s)
+	assert(s[0].qty==100)
+	var s = await knex("stock").where("#cargo",2)
+	console.log(s)
+	assert(s[0].qty==100)
 }
 /*
 ## how to debug sql?
